@@ -3,6 +3,7 @@ import { Plus, Trophy, Target, Zap, Star, Calendar, Mic, MicOff } from 'lucide-r
 import { Task, GameStats } from '../types';
 import TaskCard from './TaskCard';
 import QuickAddModal from './QuickAddModal';
+import EnhancedFireworks from './EnhancedFireworks';
 
 interface TheCourtHomeProps {
   tasks: Task[];
@@ -36,12 +37,65 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [isVoiceCommandOn, setIsVoiceCommandOn] = useState(false);
   const [currentQuote, setCurrentQuote] = useState('');
+  const [fireworksDisplay, setFireworksDisplay] = useState<{
+    show: boolean;
+    message: string;
+    taskId: string | null;
+    intensity: 'small' | 'medium' | 'large' | 'epic';
+  }>({
+    show: false,
+    message: '',
+    taskId: null,
+    intensity: 'medium'
+  });
 
   useEffect(() => {
     // Set a random motivational quote on component mount
     const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
     setCurrentQuote(randomQuote);
   }, []);
+
+  const handleTriggerFireworks = (taskId: string, message: string) => {
+    // Find the task to determine intensity based on difficulty
+    const task = tasks.find(t => t.id === taskId);
+    let intensity: 'small' | 'medium' | 'large' | 'epic' = 'medium';
+    
+    if (task) {
+      switch (task.difficulty) {
+        case '1-pointer':
+          intensity = 'small';
+          break;
+        case '2-pointer':
+          intensity = 'medium';
+          break;
+        case '3-pointer':
+          intensity = 'large';
+          break;
+        case '4-pointer':
+          intensity = 'epic';
+          break;
+      }
+    }
+
+    setFireworksDisplay({
+      show: true,
+      message,
+      taskId,
+      intensity
+    });
+  };
+
+  const handleFireworksComplete = () => {
+    if (fireworksDisplay.taskId) {
+      onCompleteTask(fireworksDisplay.taskId);
+    }
+    setFireworksDisplay({
+      show: false,
+      message: '',
+      taskId: null,
+      intensity: 'medium'
+    });
+  };
 
   const todaysTasks = tasks.filter(task => {
     const today = new Date().toDateString();
@@ -50,6 +104,15 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 p-4 pb-24 overflow-y-auto">
+      {/* Fireworks Animation - Rendered at top level for full screen overlay */}
+      {fireworksDisplay.show && (
+        <EnhancedFireworks
+          intensity={fireworksDisplay.intensity}
+          message={fireworksDisplay.message}
+          onComplete={handleFireworksComplete}
+        />
+      )}
+
       {/* Header */}
       <div className="text-center mb-8 pt-8">
         <div className="flex items-center justify-between mb-4">
@@ -144,6 +207,7 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
                 onComplete={onCompleteTask}
                 onDelete={onDeleteTask}
                 onTogglePriority={onTogglePriority}
+                onTriggerFireworks={handleTriggerFireworks}
               />
             ))}
           </div>
@@ -165,6 +229,7 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
                 onComplete={onCompleteTask}
                 onDelete={onDeleteTask}
                 onTogglePriority={onTogglePriority}
+                onTriggerFireworks={handleTriggerFireworks}
               />
             ))}
           </div>
