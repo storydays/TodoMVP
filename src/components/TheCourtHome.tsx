@@ -42,11 +42,13 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
     message: string;
     taskId: string | null;
     intensity: 'small' | 'medium' | 'large' | 'epic';
+    celebrationImages: string[];
   }>({
     show: false,
     message: '',
     taskId: null,
-    intensity: 'medium'
+    intensity: 'medium',
+    celebrationImages: []
   });
 
   useEffect(() => {
@@ -55,7 +57,7 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
     setCurrentQuote(randomQuote);
   }, []);
 
-  const handleTriggerFireworks = (taskId: string, message: string) => {
+  const handleTriggerFireworks = (taskId: string, message: string, celebrationImages: string[]) => {
     // Find the task to determine intensity based on difficulty
     const task = tasks.find(t => t.id === taskId);
     let intensity: 'small' | 'medium' | 'large' | 'epic' = 'medium';
@@ -81,7 +83,8 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       show: true,
       message,
       taskId,
-      intensity
+      intensity,
+      celebrationImages
     });
   };
 
@@ -93,7 +96,8 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       show: false,
       message: '',
       taskId: null,
-      intensity: 'medium'
+      intensity: 'medium',
+      celebrationImages: []
     });
   };
 
@@ -109,6 +113,7 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
         <EnhancedFireworks
           intensity={fireworksDisplay.intensity}
           message={fireworksDisplay.message}
+          celebrationImages={fireworksDisplay.celebrationImages}
           onComplete={handleFireworksComplete}
         />
       )}

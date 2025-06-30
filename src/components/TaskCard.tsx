@@ -8,7 +8,7 @@ interface TaskCardProps {
   onComplete: (taskId: string) => void;
   onDelete: (taskId: string) => void;
   onTogglePriority: (taskId: string) => void;
-  onTriggerFireworks?: (taskId: string, message: string) => void;
+  onTriggerFireworks?: (taskId: string, message: string, celebrationImages: string[]) => void;
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ 
@@ -32,14 +32,31 @@ const TaskCard: React.FC<TaskCardProps> = ({
     // Trigger fireworks animation if callback is provided
     if (onTriggerFireworks) {
       const messages = [
-        "🎉 Task Completed! 🎉",
-        "🏆 Victory! 🏆",
-        "⭐ Amazing Work! ⭐",
-        "🔥 On Fire! 🔥",
-        "💪 Crushed It! 💪"
+        "Task Completed!",
+        "Victory!",
+        "Amazing Work!",
+        "On Fire!",
+        "Crushed It!",
+        "Perfect Shot!",
+        "Championship Play!",
+        "MVP Performance!"
       ];
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      onTriggerFireworks(task.id, randomMessage);
+      
+      // Define available celebration images
+      const availableImages = [
+        '/medal.png',
+        '/basketball-player.png', 
+        '/trophyv4.png',
+        '/Glowbb.png',
+        '/icons8-basketball-64.png'
+      ];
+      
+      // Randomly select two distinct images
+      const shuffled = [...availableImages].sort(() => 0.5 - Math.random());
+      const selectedImages = shuffled.slice(0, 2);
+      
+      onTriggerFireworks(task.id, randomMessage, selectedImages);
     } else {
       // Fallback if no fireworks callback provided
       setTimeout(() => {

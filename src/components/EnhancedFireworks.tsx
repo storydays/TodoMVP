@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 interface EnhancedFireworksProps {
   intensity: 'small' | 'medium' | 'large' | 'epic';
   message: string;
+  celebrationImages: string[];
   onComplete?: () => void;
 }
 
@@ -22,6 +23,7 @@ interface Particle {
 const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
   intensity,
   message,
+  celebrationImages,
   onComplete
 }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -55,7 +57,7 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
       const life = Math.random() * 60 + 40;
 
       newParticles.push({
-        id: Date.now() + i + Math.random() * 1000, // Ensure unique IDs
+        id: Date.now() + i + Math.random() * 1000,
         x: centerX,
         y: centerY,
         vx: Math.cos(angle) * speed,
@@ -132,18 +134,54 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {/* Message */}
+      {/* Message with Images */}
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <div className={`text-center animate-bounce drop-shadow-2xl ${
-          intensity === 'epic' ? 'text-6xl md:text-8xl' : ''
+          intensity === 'epic' ? 'text-4xl md:text-6xl' : ''
         } ${
-          intensity === 'large' ? 'text-5xl md:text-7xl' : ''
+          intensity === 'large' ? 'text-3xl md:text-5xl' : ''
         } ${
-          intensity === 'medium' ? 'text-4xl md:text-6xl' : ''
+          intensity === 'medium' ? 'text-2xl md:text-4xl' : ''
         } ${
-          intensity === 'small' ? 'text-3xl md:text-5xl' : ''
-        } font-bold text-white`}>
-          {message}
+          intensity === 'small' ? 'text-xl md:text-3xl' : ''
+        } font-bold text-white flex items-center justify-center space-x-4`}>
+          
+          {/* First celebration image */}
+          {celebrationImages[0] && (
+            <img 
+              src={celebrationImages[0]} 
+              alt="Celebration" 
+              className={`inline-block ${
+                intensity === 'epic' ? 'w-16 h-16 md:w-20 md:h-20' : ''
+              } ${
+                intensity === 'large' ? 'w-12 h-12 md:w-16 md:h-16' : ''
+              } ${
+                intensity === 'medium' ? 'w-10 h-10 md:w-12 md:h-12' : ''
+              } ${
+                intensity === 'small' ? 'w-8 h-8 md:w-10 md:h-10' : ''
+              } animate-pulse drop-shadow-lg`}
+            />
+          )}
+          
+          {/* Message text */}
+          <span className="drop-shadow-2xl">{message}</span>
+          
+          {/* Second celebration image */}
+          {celebrationImages[1] && (
+            <img 
+              src={celebrationImages[1]} 
+              alt="Celebration" 
+              className={`inline-block ${
+                intensity === 'epic' ? 'w-16 h-16 md:w-20 md:h-20' : ''
+              } ${
+                intensity === 'large' ? 'w-12 h-12 md:w-16 md:h-16' : ''
+              } ${
+                intensity === 'medium' ? 'w-10 h-10 md:w-12 md:h-12' : ''
+              } ${
+                intensity === 'small' ? 'w-8 h-8 md:w-10 md:h-10' : ''
+              } animate-pulse drop-shadow-lg`}
+            />
+          )}
         </div>
       </div>
 
