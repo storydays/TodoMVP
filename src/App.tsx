@@ -46,7 +46,7 @@ function App() {
         return (
           <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 p-4 flex items-center justify-center">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-white mb-4">Settings</h1>
+              <h1 className="text-3xl font-bold text-white mb-4">AI Coach</h1>
               <p className="text-white/80">Coming soon...</p>
             </div>
           </div>

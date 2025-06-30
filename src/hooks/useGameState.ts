@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Task, GameStats, Badge, WeeklyChallenge } from '../types';
 
 const DIFFICULTY_POINTS = {
-  easy: 2,
-  medium: 5,
-  hard: 10
+  '1-pointer': 1,
+  '2-pointer': 2,
+  '3-pointer': 3,
+  '4-pointer': 4
 };
 
 const INITIAL_BADGES: Badge[] = [
@@ -21,6 +22,7 @@ export const useGameState = () => {
     tasksCompleted: 0,
     currentStreak: 0,
     quarterProgress: 0,
+    matchPoints: 0,
     weeklyGoal: 40,
     badges: INITIAL_BADGES
   });
@@ -46,17 +48,50 @@ export const useGameState = () => {
     }
   ]);
 
-  const addTask = (title: string, description: string, difficulty: 'easy' | 'medium' | 'hard', category: string) => {
+  // Check for overdue tasks on component mount and periodically
+  useEffect(() => {
+    checkOverdueTasks();
+    const interval = setInterval(checkOverdueTasks, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  const checkOverdueTasks = () => {
+    const now = new Date();
+    setTasks(prev => prev.map(task => {
+      if (task.status === 'pending' && !task.completed) {
+        const dueDateTime = new Date(task.dueDate);
+        const [hours, minutes] = task.dueTime.split(':');
+        dueDateTime.setHours(parseInt(hours), parseInt(minutes));
+        
+        const daysDiff = Math.floor((now.getTime() - dueDateTime.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysDiff >= 2) {
+          return { ...task, status: 'uncompleted', points: 0 };
+        }
+      }
+      return task;
+    }));
+  };
+
+  const addTask = (
+    title: string, 
+    difficulty: '1-pointer' | '2-pointer' | '3-pointer' | '4-pointer', 
+    category: string,
+    dueDate: Date,
+    dueTime: string
+  ) => {
     const newTask: Task = {
       id: Date.now().toString(),
       title,
-      description,
       difficulty,
       points: DIFFICULTY_POINTS[difficulty],
       completed: false,
       createdAt: new Date(),
+      dueDate,
+      dueTime,
       category,
-      priority: false
+      priority: false,
+      status: 'pending'
     };
     setTasks(prev => [...prev, newTask]);
   };
@@ -64,15 +99,39 @@ export const useGameState = () => {
   const completeTask = (taskId: string) => {
     setTasks(prev => prev.map(task => {
       if (task.id === taskId && !task.completed) {
-        const completedTask = { ...task, completed: true, completedAt: new Date() };
+        const completedAt = new Date();
+        const dueDateTime = new Date(task.dueDate);
+        const [hours, minutes] = task.dueTime.split(':');
+        dueDateTime.setHours(parseInt(hours), parseInt(minutes));
+        
+        const daysDiff = Math.floor((completedAt.getTime() - dueDateTime.getTime()) / (1000 * 60 * 60 * 24));
+        
+        let finalPoints = task.points;
+        let status: 'completed' | 'uncompleted' = 'completed';
+        
+        if (daysDiff === 1) {
+          finalPoints = Math.max(0, task.points - 1);
+        } else if (daysDiff >= 2) {
+          finalPoints = 0;
+          status = 'uncompleted';
+        }
+        
+        const completedTask = { 
+          ...task, 
+          completed: true, 
+          completedAt,
+          points: finalPoints,
+          status
+        };
         
         // Update game stats
         setGameStats(prevStats => {
           const newStats = {
             ...prevStats,
-            totalPoints: prevStats.totalPoints + task.points,
+            totalPoints: prevStats.totalPoints + finalPoints,
             tasksCompleted: prevStats.tasksCompleted + 1,
-            quarterProgress: Math.min(prevStats.quarterProgress + 1, 10)
+            quarterProgress: Math.min(prevStats.quarterProgress + 1, 10),
+            matchPoints: prevStats.matchPoints + finalPoints
           };
 
           // Check for badge achievements
@@ -116,6 +175,10 @@ export const useGameState = () => {
     return tasks.filter(task => task.createdAt.toDateString() === today);
   };
 
+  const getTasksByStatus = (status: 'pending' | 'completed' | 'uncompleted') => {
+    return tasks.filter(task => task.status === status);
+  };
+
   return {
     tasks,
     gameStats,
@@ -125,6 +188,8 @@ export const useGameState = () => {
     deleteTask,
     togglePriority,
     getStartingFive,
-    getTodaysTasks
+    getTodaysTasks,
+    getTasksByStatus,
+    checkOverdueTasks
   };
 };

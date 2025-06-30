@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Star, Trash2, Clock, Zap } from 'lucide-react';
+import { Check, Star, Trash2, Clock, Calendar } from 'lucide-react';
 import { Task } from '../types';
 
 interface TaskCardProps {
@@ -21,26 +21,42 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return 'from-green-400 to-green-600';
-      case 'medium': return 'from-yellow-400 to-orange-500';
-      case 'hard': return 'from-red-400 to-red-600';
+      case '1-pointer': return 'from-green-400 to-green-600';
+      case '2-pointer': return 'from-yellow-400 to-orange-500';
+      case '3-pointer': return 'from-red-400 to-red-600';
+      case '4-pointer': return 'from-purple-400 to-purple-600';
       default: return 'from-gray-400 to-gray-600';
     }
   };
 
   const getDifficultyIcon = (difficulty: string) => {
     switch (difficulty) {
-      case 'easy': return '🏀';
-      case 'medium': return '⚡';
-      case 'hard': return '🔥';
+      case '1-pointer': return '🏀';
+      case '2-pointer': return '⚡';
+      case '3-pointer': return '🔥';
+      case '4-pointer': return '💎';
       default: return '📝';
     }
+  };
+
+  const formatDueDateTime = () => {
+    const dueDate = new Date(task.dueDate);
+    const dateStr = dueDate.toLocaleDateString();
+    return `${dateStr} at ${task.dueTime}`;
+  };
+
+  const isOverdue = () => {
+    const now = new Date();
+    const dueDateTime = new Date(task.dueDate);
+    const [hours, minutes] = task.dueTime.split(':');
+    dueDateTime.setHours(parseInt(hours), parseInt(minutes));
+    return now > dueDateTime && !task.completed;
   };
 
   return (
     <div className={`bg-white/15 backdrop-blur-lg rounded-2xl p-4 border border-white/20 transform transition-all duration-300 ${
       isCompleting ? 'scale-95 opacity-50' : 'hover:scale-105'
-    } ${task.completed ? 'opacity-60' : ''}`}>
+    } ${task.completed ? 'opacity-60' : ''} ${isOverdue() ? 'border-red-400/50' : ''}`}>
       
       {/* Task Header */}
       <div className="flex items-start justify-between mb-3">
@@ -53,6 +69,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
             <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/20 text-white">
               +{task.points} pts
             </span>
+            {task.status === 'uncompleted' && (
+              <span className="text-xs font-medium px-2 py-1 rounded-full bg-red-500/20 text-red-400">
+                FAILED
+              </span>
+            )}
           </div>
           <h4 className="font-semibold text-white text-lg leading-tight">{task.title}</h4>
           {task.description && (
@@ -72,15 +93,32 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
         </button>
       </div>
 
+      {/* Task Details */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-4 text-white/60 text-sm">
+          <div className="flex items-center space-x-1">
+            <Calendar className="w-4 h-4" />
+            <span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-3">
+        <div className={`flex items-center space-x-1 text-sm ${isOverdue() ? 'text-red-400' : 'text-white/60'}`}>
+          <Clock className="w-4 h-4" />
+          <span>Due: {formatDueDateTime()}</span>
+          {isOverdue() && <span className="text-red-400 font-medium">(Overdue)</span>}
+        </div>
+      </div>
+
       {/* Task Actions */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 text-white/60 text-sm">
-          <Clock className="w-4 h-4" />
-          <span>{new Date(task.createdAt).toLocaleDateString()}</span>
+        <div className="text-white/60 text-sm">
+          <span className="capitalize">{task.category}</span>
         </div>
         
         <div className="flex items-center space-x-2">
-          {!task.completed && (
+          {!task.completed && task.status === 'pending' && (
             <>
               <button
                 onClick={() => onDelete(task.id)}
@@ -107,6 +145,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
             <div className="flex items-center space-x-2 text-green-400">
               <Check className="w-5 h-5" />
               <span className="font-medium">Scored!</span>
+            </div>
+          )}
+
+          {task.status === 'uncompleted' && (
+            <div className="flex items-center space-x-2 text-red-400">
+              <X className="w-5 h-5" />
+              <span className="font-medium">Failed</span>
             </div>
           )}
         </div>
