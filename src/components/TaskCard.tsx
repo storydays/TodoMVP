@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Star, Trash2, Clock, Calendar, X } from 'lucide-react';
+import { Check, Star, Trash2, Clock, Calendar, X, FileText } from 'lucide-react';
 import { Task } from '../types';
 import { playTaskCompletionCommentary, playFireworkSound } from '../utils/audio';
 
@@ -138,6 +138,15 @@ const TaskCard: React.FC<TaskCardProps> = ({
           {task.description && (
             <p className="text-white/70 text-sm mt-1">{task.description}</p>
           )}
+          {task.notes && (
+            <div className="mt-2 p-2 bg-white/10 rounded-lg">
+              <div className="flex items-center space-x-1 mb-1">
+                <FileText className="w-3 h-3 text-white/60" />
+                <span className="text-xs text-white/60 font-medium">Notes:</span>
+              </div>
+              <p className="text-white/80 text-sm">{task.notes}</p>
+            </div>
+          )}
         </div>
         
         <button
@@ -173,7 +182,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
       {/* Task Actions */}
       <div className="flex items-center justify-between">
         <div className="text-white/60 text-sm">
-          <span className="capitalize">{task.category}</span>
+          {/* Removed category display since it's no longer part of the task */}
         </div>
         
         <div className="flex items-center space-x-2">

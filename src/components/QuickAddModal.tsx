@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mic, Target, Sparkles } from 'lucide-react';
+import { X, Mic, Target } from 'lucide-react';
 
 interface QuickAddModalProps {
   onClose: () => void;
-  onAddTask: (title: string, difficulty: '1-pointer' | '2-pointer' | '3-pointer' | '4-pointer', category: string, dueDate: Date, dueTime: string) => void;
+  onAddTask: (title: string, difficulty: '1-pointer' | '2-pointer' | '3-pointer' | '4-pointer', notes: string, dueDate: Date, dueTime: string) => void;
 }
 
 const QuickAddModal: React.FC<QuickAddModalProps> = ({ onClose, onAddTask }) => {
   const [title, setTitle] = useState('');
   const [difficulty, setDifficulty] = useState<'1-pointer' | '2-pointer' | '3-pointer' | '4-pointer'>('2-pointer');
-  const [category, setCategory] = useState('Personal');
+  const [notes, setNotes] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const [isAIGenerating, setIsAIGenerating] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   useEffect(() => {
@@ -39,7 +38,7 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({ onClose, onAddTask }) => 
     e.preventDefault();
     if (title.trim() && dueDate && dueTime) {
       const taskDueDate = new Date(dueDate);
-      onAddTask(title, difficulty, category, taskDueDate, dueTime);
+      onAddTask(title, difficulty, notes, taskDueDate, dueTime);
       
       // Play voice commentary
       playVoiceCommentary();
@@ -121,48 +120,6 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({ onClose, onAddTask }) => 
     }
   };
 
-  const handleAITaskSuggestion = () => {
-    setIsAIGenerating(true);
-    
-    // Simulate AI task generation (replace with actual OpenAI API call)
-    setTimeout(() => {
-      const aiSuggestions = [
-        { title: "Review quarterly financial reports", difficulty: "3-pointer" as const, category: "Work" },
-        { title: "Complete 30-minute cardio workout", difficulty: "2-pointer" as const, category: "Health" },
-        { title: "Read 20 pages of leadership book", difficulty: "2-pointer" as const, category: "Education" },
-        { title: "Organize digital photo collection", difficulty: "4-pointer" as const, category: "Personal" },
-        { title: "Update investment portfolio", difficulty: "3-pointer" as const, category: "Finance" }
-      ];
-
-      const randomSuggestion = aiSuggestions[Math.floor(Math.random() * aiSuggestions.length)];
-      
-      setTitle(randomSuggestion.title);
-      setDifficulty(randomSuggestion.difficulty);
-      setCategory(randomSuggestion.category);
-      
-      // Set due date based on difficulty
-      const today = new Date();
-      const daysToAdd = randomSuggestion.difficulty === '1-pointer' ? 1 : 
-                      randomSuggestion.difficulty === '2-pointer' ? 2 :
-                      randomSuggestion.difficulty === '3-pointer' ? 3 : 5;
-      
-      const suggestedDate = new Date(today.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
-      setDueDate(suggestedDate.toISOString().split('T')[0]);
-      
-      // Set due time based on category
-      const timeMap: { [key: string]: string } = {
-        'Work': '17:00',
-        'Health': '07:00',
-        'Education': '20:00',
-        'Personal': '19:00',
-        'Finance': '18:00'
-      };
-      setDueTime(timeMap[randomSuggestion.category] || '18:00');
-      
-      setIsAIGenerating(false);
-    }, 2000);
-  };
-
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 w-full max-w-md border border-white/20 max-h-[90vh] overflow-y-auto">
@@ -206,28 +163,13 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({ onClose, onAddTask }) => 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-white/80 text-sm font-medium mb-2">Name of the task</label>
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                placeholder="What's your next play?"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="flex-1 p-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 backdrop-blur-sm"
-              />
-              <button
-                type="button"
-                onClick={handleAITaskSuggestion}
-                disabled={isAIGenerating}
-                className="px-4 py-2 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium transition-all duration-300 disabled:opacity-50 flex items-center space-x-2"
-              >
-                {isAIGenerating ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <Sparkles className="w-4 h-4" />
-                )}
-                <span className="text-sm">AI Task</span>
-              </button>
-            </div>
+            <input
+              type="text"
+              placeholder="What's your next play?"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 backdrop-blur-sm"
+            />
           </div>
 
           {/* Difficulty Selector */}
@@ -255,20 +197,16 @@ const QuickAddModal: React.FC<QuickAddModalProps> = ({ onClose, onAddTask }) => 
             </div>
           </div>
 
-          {/* Category */}
+          {/* Notes */}
           <div>
-            <label className="block text-white/80 text-sm font-medium mb-2">Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-4 rounded-2xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-white/40 backdrop-blur-sm"
-            >
-              <option value="Personal">Personal</option>
-              <option value="Work">Work</option>
-              <option value="Health">Health</option>
-              <option value="Education">Education</option>
-              <option value="Finance">Finance</option>
-            </select>
+            <label className="block text-white/80 text-sm font-medium mb-2">Notes</label>
+            <textarea
+              placeholder="Add any additional notes or details..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              className="w-full p-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/40 backdrop-blur-sm resize-none"
+            />
           </div>
 
           {/* Date and Time Pickers */}

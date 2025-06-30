@@ -76,7 +76,7 @@ export const useGameState = () => {
   const addTask = (
     title: string, 
     difficulty: '1-pointer' | '2-pointer' | '3-pointer' | '4-pointer', 
-    category: string,
+    notes: string,
     dueDate: Date,
     dueTime: string
   ) => {
@@ -89,7 +89,7 @@ export const useGameState = () => {
       createdAt: new Date(),
       dueDate,
       dueTime,
-      category,
+      notes,
       priority: false,
       status: 'pending'
     };

@@ -9,7 +9,7 @@ export interface Task {
   completedAt?: Date;
   dueDate: Date;
   dueTime: string;
-  category: string;
+  notes?: string;
   priority: boolean;
   status: 'pending' | 'completed' | 'uncompleted';
 }

@@ -12,7 +12,7 @@ interface TheCourtHomeProps {
   onCompleteTask: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onTogglePriority: (taskId: string) => void;
-  onAddTask: (title: string, difficulty: '1-pointer' | '2-pointer' | '3-pointer' | '4-pointer', category: string, dueDate: Date, dueTime: string) => void;
+  onAddTask: (title: string, difficulty: '1-pointer' | '2-pointer' | '3-pointer' | '4-pointer', notes: string, dueDate: Date, dueTime: string) => void;
 }
 
 const motivationalQuotes = [
