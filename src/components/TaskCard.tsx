@@ -29,7 +29,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
     setTimeout(() => {
       onComplete(task.id);
       setShowFireworks(false);
-    }, 1500);
+    }, 2500); // Extended duration for enhanced animation
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -71,24 +71,67 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
       isCompleting ? 'scale-95 opacity-50' : 'hover:scale-105'
     } ${task.completed ? 'opacity-60' : ''} ${isOverdue() ? 'border-red-400/50' : ''}`}>
       
-      {/* Fireworks Animation */}
+      {/* Enhanced Fireworks Animation */}
       {showFireworks && (
         <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl overflow-hidden">
-          {/* Particle effects using Tailwind animations */}
-          <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
-          <div className="absolute top-4 right-4 w-3 h-3 bg-red-400 rounded-full animate-bounce"></div>
-          <div className="absolute bottom-4 left-6 w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-          <div className="absolute bottom-2 right-2 w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
-          <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-purple-400 rounded-full animate-bounce transform -translate-x-1/2 -translate-y-1/2"></div>
+          {/* Central Burst - Large explosion effect */}
+          <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 rounded-full animate-ping transform -translate-x-1/2 -translate-y-1/2 opacity-80"></div>
+          <div className="absolute top-1/2 left-1/2 w-12 h-12 bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500 rounded-full animate-pulse transform -translate-x-1/2 -translate-y-1/2 opacity-70" style={{ animationDelay: '0.2s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-gradient-to-r from-green-400 via-cyan-500 to-blue-500 rounded-full animate-bounce transform -translate-x-1/2 -translate-y-1/2 opacity-90" style={{ animationDelay: '0.4s' }}></div>
           
-          {/* Sparkle effects */}
-          <div className="absolute top-3 left-1/3 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
-          <div className="absolute top-6 right-1/3 w-1 h-1 bg-pink-300 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-          <div className="absolute bottom-6 left-1/4 w-1 h-1 bg-cyan-300 rounded-full animate-bounce" style={{ animationDelay: '0.6s' }}></div>
-          <div className="absolute bottom-3 right-1/4 w-1 h-1 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.8s' }}></div>
+          {/* Large Corner Bursts */}
+          <div className="absolute top-2 left-2 w-8 h-8 bg-yellow-400 rounded-full animate-ping opacity-80"></div>
+          <div className="absolute top-2 right-2 w-10 h-10 bg-red-400 rounded-full animate-bounce opacity-75" style={{ animationDelay: '0.1s' }}></div>
+          <div className="absolute bottom-2 left-2 w-12 h-12 bg-blue-400 rounded-full animate-pulse opacity-70" style={{ animationDelay: '0.3s' }}></div>
+          <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-400 rounded-full animate-ping opacity-85" style={{ animationDelay: '0.5s' }}></div>
           
-          {/* Burst effect overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-red-400/20 to-blue-400/20 animate-pulse rounded-2xl"></div>
+          {/* Medium Scattered Particles */}
+          <div className="absolute top-6 left-8 w-6 h-6 bg-purple-400 rounded-full animate-bounce opacity-80" style={{ animationDelay: '0.2s' }}></div>
+          <div className="absolute top-8 right-8 w-4 h-4 bg-orange-400 rounded-full animate-ping opacity-90" style={{ animationDelay: '0.4s' }}></div>
+          <div className="absolute bottom-8 left-12 w-5 h-5 bg-pink-400 rounded-full animate-pulse opacity-75" style={{ animationDelay: '0.6s' }}></div>
+          <div className="absolute bottom-6 right-12 w-7 h-7 bg-cyan-400 rounded-full animate-bounce opacity-80" style={{ animationDelay: '0.8s' }}></div>
+          
+          {/* Small Sparkle Effects - Dense Coverage */}
+          <div className="absolute top-4 left-1/4 w-3 h-3 bg-yellow-300 rounded-full animate-ping opacity-90" style={{ animationDelay: '0.1s' }}></div>
+          <div className="absolute top-8 left-1/3 w-2 h-2 bg-pink-300 rounded-full animate-pulse opacity-85" style={{ animationDelay: '0.3s' }}></div>
+          <div className="absolute top-12 left-2/3 w-4 h-4 bg-cyan-300 rounded-full animate-bounce opacity-80" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-6 right-1/4 w-3 h-3 bg-orange-300 rounded-full animate-ping opacity-90" style={{ animationDelay: '0.7s' }}></div>
+          <div className="absolute top-10 right-1/3 w-2 h-2 bg-purple-300 rounded-full animate-pulse opacity-85" style={{ animationDelay: '0.9s' }}></div>
+          
+          <div className="absolute bottom-4 left-1/4 w-3 h-3 bg-green-300 rounded-full animate-bounce opacity-90" style={{ animationDelay: '0.2s' }}></div>
+          <div className="absolute bottom-8 left-1/3 w-4 h-4 bg-blue-300 rounded-full animate-ping opacity-80" style={{ animationDelay: '0.4s' }}></div>
+          <div className="absolute bottom-12 left-2/3 w-2 h-2 bg-red-300 rounded-full animate-pulse opacity-85" style={{ animationDelay: '0.6s' }}></div>
+          <div className="absolute bottom-6 right-1/4 w-3 h-3 bg-yellow-300 rounded-full animate-bounce opacity-90" style={{ animationDelay: '0.8s' }}></div>
+          <div className="absolute bottom-10 right-1/3 w-5 h-5 bg-pink-300 rounded-full animate-ping opacity-75" style={{ animationDelay: '1.0s' }}></div>
+          
+          {/* Mid-level Particles */}
+          <div className="absolute top-1/3 left-6 w-4 h-4 bg-indigo-400 rounded-full animate-pulse opacity-80" style={{ animationDelay: '0.3s' }}></div>
+          <div className="absolute top-1/3 right-6 w-6 h-6 bg-emerald-400 rounded-full animate-bounce opacity-75" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-2/3 left-6 w-5 h-5 bg-rose-400 rounded-full animate-ping opacity-85" style={{ animationDelay: '0.7s' }}></div>
+          <div className="absolute top-2/3 right-6 w-3 h-3 bg-amber-400 rounded-full animate-pulse opacity-90" style={{ animationDelay: '0.9s' }}></div>
+          
+          {/* Edge Sparkles for Flourish Effect */}
+          <div className="absolute top-0 left-1/2 w-2 h-2 bg-white rounded-full animate-ping opacity-95 transform -translate-x-1/2" style={{ animationDelay: '0.4s' }}></div>
+          <div className="absolute bottom-0 left-1/2 w-3 h-3 bg-white rounded-full animate-bounce opacity-90 transform -translate-x-1/2" style={{ animationDelay: '0.6s' }}></div>
+          <div className="absolute top-1/2 left-0 w-2 h-2 bg-white rounded-full animate-pulse opacity-95 transform -translate-y-1/2" style={{ animationDelay: '0.8s' }}></div>
+          <div className="absolute top-1/2 right-0 w-3 h-3 bg-white rounded-full animate-ping opacity-90 transform -translate-y-1/2" style={{ animationDelay: '1.0s' }}></div>
+          
+          {/* Radiating Lines Effect */}
+          <div className="absolute top-1/2 left-1/2 w-1 h-16 bg-gradient-to-t from-transparent via-yellow-400 to-transparent animate-pulse transform -translate-x-1/2 -translate-y-1/2 rotate-0 opacity-60" style={{ animationDelay: '0.2s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-1 h-16 bg-gradient-to-t from-transparent via-red-400 to-transparent animate-pulse transform -translate-x-1/2 -translate-y-1/2 rotate-45 opacity-60" style={{ animationDelay: '0.4s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-1 h-16 bg-gradient-to-t from-transparent via-blue-400 to-transparent animate-pulse transform -translate-x-1/2 -translate-y-1/2 rotate-90 opacity-60" style={{ animationDelay: '0.6s' }}></div>
+          <div className="absolute top-1/2 left-1/2 w-1 h-16 bg-gradient-to-t from-transparent via-green-400 to-transparent animate-pulse transform -translate-x-1/2 -translate-y-1/2 rotate-135 opacity-60" style={{ animationDelay: '0.8s' }}></div>
+          
+          {/* Outer Ring Particles */}
+          <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-violet-400 rounded-full animate-bounce opacity-70" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-teal-400 rounded-full animate-ping opacity-80" style={{ animationDelay: '0.7s' }}></div>
+          <div className="absolute bottom-1/4 left-1/4 w-5 h-5 bg-fuchsia-400 rounded-full animate-pulse opacity-75" style={{ animationDelay: '0.9s' }}></div>
+          <div className="absolute bottom-1/4 right-1/4 w-4 h-4 bg-lime-400 rounded-full animate-bounce opacity-85" style={{ animationDelay: '1.1s' }}></div>
+          
+          {/* Burst Effect Overlay with Multiple Gradients */}
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-red-400/30 to-blue-400/30 animate-pulse rounded-2xl opacity-80"></div>
+          <div className="absolute inset-0 bg-gradient-to-l from-green-400/20 via-purple-400/20 to-pink-400/20 animate-pulse rounded-2xl opacity-70" style={{ animationDelay: '0.3s' }}></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-400/25 via-cyan-400/25 to-violet-400/25 animate-pulse rounded-2xl opacity-60" style={{ animationDelay: '0.6s' }}></div>
         </div>
       )}
       
