@@ -5,13 +5,6 @@ import TaskCard from './TaskCard';
 import QuickAddModal from './QuickAddModal';
 import EnhancedFireworks from './EnhancedFireworks';
 
-// Import basketball icons
-import basketballIcon from '../assets/icons8-basketball-64.png';
-import medalIcon from '../assets/medal.png';
-import trophyIcon from '../assets/trophyv4.png';
-import playerIcon from '../assets/basketball-player.png';
-import glowBallIcon from '../assets/Glowbb.png';
-
 interface TheCourtHomeProps {
   tasks: Task[];
   gameStats: GameStats;
@@ -32,15 +25,6 @@ const motivationalQuotes = [
   "Excellence is not a skill, it's an attitude. - Ralph Marston"
 ];
 
-// Array of all basketball icons for random selection
-const allBasketballIcons = [
-  basketballIcon,
-  medalIcon,
-  trophyIcon,
-  playerIcon,
-  glowBallIcon
-];
-
 const TheCourtHome: React.FC<TheCourtHomeProps> = ({
   tasks,
   gameStats,
@@ -58,13 +42,11 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
     message: string;
     taskId: string | null;
     intensity: 'small' | 'medium' | 'large' | 'epic';
-    iconUrls: string[];
   }>({
     show: false,
     message: '',
     taskId: null,
-    intensity: 'medium',
-    iconUrls: []
+    intensity: 'medium'
   });
 
   useEffect(() => {
@@ -95,16 +77,11 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       }
     }
 
-    // Select 2 random unique icons from the basketball icons array
-    const shuffledIcons = [...allBasketballIcons].sort(() => Math.random() - 0.5);
-    const selectedIcons = shuffledIcons.slice(0, 2);
-
     setFireworksDisplay({
       show: true,
       message,
       taskId,
-      intensity,
-      iconUrls: selectedIcons
+      intensity
     });
   };
 
@@ -116,8 +93,7 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       show: false,
       message: '',
       taskId: null,
-      intensity: 'medium',
-      iconUrls: []
+      intensity: 'medium'
     });
   };
 
@@ -133,7 +109,6 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
         <EnhancedFireworks
           intensity={fireworksDisplay.intensity}
           message={fireworksDisplay.message}
-          iconUrls={fireworksDisplay.iconUrls}
           onComplete={handleFireworksComplete}
         />
       )}
