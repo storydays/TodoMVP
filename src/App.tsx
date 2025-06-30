@@ -51,7 +51,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
+      {/* Bolt Logo - Fixed position in top left corner */}
+      <div className="fixed top-4 left-4 z-50">
+        <img 
+          src="/boltlogo.png" 
+          alt="Bolt Logo" 
+          className="w-12 h-12 md:w-16 md:h-16 opacity-80 hover:opacity-100 transition-opacity duration-300 drop-shadow-lg"
+        />
+      </div>
+      
       {renderCurrentPage()}
       <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />
     </div>
