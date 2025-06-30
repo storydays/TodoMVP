@@ -20,6 +20,73 @@ const TaskCard: React.FC<TaskCardProps> = ({
 }) => {
   const [isCompleting, setIsCompleting] = useState(false);
 
+  const getContextBasedMessage = (difficulty: string, category: string, title: string) => {
+    const difficultyMessages = {
+      '1-pointer': [
+        "🏀 Easy Bucket! 🏀",
+        "⚡ Quick Score! ⚡",
+        "🎯 Perfect Shot! 🎯",
+        "🔥 Smooth Move! 🔥"
+      ],
+      '2-pointer': [
+        "🏆 Great Shot! 🏆",
+        "💪 Solid Play! 💪",
+        "⭐ Nice Work! ⭐",
+        "🎉 Well Done! 🎉"
+      ],
+      '3-pointer': [
+        "🔥 Three-Pointer! 🔥",
+        "🏆 Amazing Shot! 🏆",
+        "⚡ From Downtown! ⚡",
+        "💎 Clutch Play! 💎"
+      ],
+      '4-pointer': [
+        "🏆 LEGENDARY SHOT! 🏆",
+        "💎 EPIC PERFORMANCE! 💎",
+        "🔥 UNSTOPPABLE! 🔥",
+        "⭐ HALL OF FAME! ⭐"
+      ]
+    };
+
+    const categoryMessages = {
+      'Work': [
+        "💼 Professional Victory!",
+        "📈 Career Boost!",
+        "🎯 Business Success!"
+      ],
+      'Personal': [
+        "🌟 Personal Growth!",
+        "💪 Self Improvement!",
+        "🎊 Life Achievement!"
+      ],
+      'Health': [
+        "💪 Health Champion!",
+        "🏃‍♂️ Fitness Victory!",
+        "🌱 Wellness Win!"
+      ],
+      'Education': [
+        "📚 Knowledge Gained!",
+        "🎓 Learning Success!",
+        "🧠 Brain Power!"
+      ],
+      'Finance': [
+        "💰 Financial Win!",
+        "📊 Money Moves!",
+        "💎 Wealth Building!"
+      ]
+    };
+
+    // Combine difficulty and category messages
+    const difficultyMsgs = difficultyMessages[difficulty as keyof typeof difficultyMessages] || difficultyMessages['2-pointer'];
+    const categoryMsgs = categoryMessages[category as keyof typeof categoryMessages] || categoryMessages['Personal'];
+    
+    // Randomly choose between difficulty-based or category-based message
+    const useCategory = Math.random() > 0.5;
+    const selectedMessages = useCategory ? categoryMsgs : difficultyMsgs;
+    
+    return selectedMessages[Math.floor(Math.random() * selectedMessages.length)];
+  };
+
   const handleComplete = () => {
     setIsCompleting(true);
     
@@ -31,15 +98,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
     
     // Trigger fireworks animation if callback is provided
     if (onTriggerFireworks) {
-      const messages = [
-        "🎉 Task Completed! 🎉",
-        "🏆 Victory! 🏆",
-        "⭐ Amazing Work! ⭐",
-        "🔥 On Fire! 🔥",
-        "💪 Crushed It! 💪"
-      ];
-      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-      onTriggerFireworks(task.id, randomMessage);
+      const contextMessage = getContextBasedMessage(task.difficulty, task.category, task.title);
+      onTriggerFireworks(task.id, contextMessage);
     } else {
       // Fallback if no fireworks callback provided
       setTimeout(() => {

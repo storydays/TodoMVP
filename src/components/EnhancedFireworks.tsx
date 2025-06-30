@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 interface EnhancedFireworksProps {
   intensity: 'small' | 'medium' | 'large' | 'epic';
   message: string;
+  iconUrls: string[];
   onComplete?: () => void;
 }
 
@@ -16,12 +17,15 @@ interface Particle {
   size: number;
   life: number;
   maxLife: number;
-  type: 'spark' | 'star' | 'heart' | 'circle';
+  imageUrl: string;
+  rotation: number;
+  rotationSpeed: number;
 }
 
 const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
   intensity,
   message,
+  iconUrls,
   onComplete
 }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -36,26 +40,26 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
 
   const getParticleCount = () => {
     switch (intensity) {
-      case 'small': return 20;
-      case 'medium': return 40;
-      case 'large': return 80;
-      case 'epic': return 150;
-      default: return 20;
+      case 'small': return 25;
+      case 'medium': return 50;
+      case 'large': return 100;
+      case 'epic': return 200;
+      default: return 25;
     }
   };
 
-  const createBurst = (centerX: number, centerY: number, burstColors: string[]) => {
+  const createBurst = (centerX: number, centerY: number, burstColors: string[], icons: string[]) => {
     const particleCount = getParticleCount();
     const newParticles: Particle[] = [];
 
     for (let i = 0; i < particleCount; i++) {
       const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
-      const speed = Math.random() * 8 + 2;
-      const size = Math.random() * 4 + 2;
-      const life = Math.random() * 60 + 40;
+      const speed = Math.random() * 12 + 3;
+      const size = Math.random() * 30 + 20; // Larger size for icons
+      const life = Math.random() * 80 + 60; // Longer life for better visibility
 
       newParticles.push({
-        id: Date.now() + i + Math.random() * 1000, // Ensure unique IDs
+        id: Date.now() + i + Math.random() * 1000,
         x: centerX,
         y: centerY,
         vx: Math.cos(angle) * speed,
@@ -64,7 +68,9 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
         size: size,
         life: life,
         maxLife: life,
-        type: ['spark', 'star', 'heart', 'circle'][Math.floor(Math.random() * 4)] as any
+        imageUrl: icons[Math.floor(Math.random() * icons.length)],
+        rotation: 0,
+        rotationSpeed: (Math.random() - 0.5) * 10 // Random rotation speed
       });
     }
 
@@ -76,16 +82,22 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
     let animationId: number;
     let hasCompleted = false;
 
+    // Ensure we have icons to work with
+    if (iconUrls.length === 0) {
+      console.warn('No icons provided for fireworks animation');
+      return;
+    }
+
     // Create multiple bursts for different intensities
-    const burstCount = intensity === 'epic' ? 5 : intensity === 'large' ? 3 : intensity === 'medium' ? 2 : 1;
+    const burstCount = intensity === 'epic' ? 6 : intensity === 'large' ? 4 : intensity === 'medium' ? 3 : 2;
 
     for (let i = 0; i < burstCount; i++) {
       setTimeout(() => {
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * window.innerHeight * 0.3 + 100;
-        const burst = createBurst(x, y, burstColors);
+        const x = Math.random() * (window.innerWidth - 100) + 50;
+        const y = Math.random() * (window.innerHeight * 0.4) + 100;
+        const burst = createBurst(x, y, burstColors, iconUrls);
         setParticles(prev => [...prev, ...burst]);
-      }, i * 500);
+      }, i * 400);
     }
 
     // Animation loop using requestAnimationFrame for better performance
@@ -95,19 +107,20 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
           ...particle,
           x: particle.x + particle.vx,
           y: particle.y + particle.vy,
-          vy: particle.vy + 0.1, // gravity
+          vx: particle.vx * 0.98, // Air resistance
+          vy: particle.vy + 0.15, // Gravity
           life: particle.life - 1,
-          size: particle.size * (particle.life / particle.maxLife)
+          size: particle.size * Math.max(0.3, particle.life / particle.maxLife), // Don't let icons get too small
+          rotation: particle.rotation + particle.rotationSpeed
         })).filter(particle => particle.life > 0);
 
         // Check if animation should complete
         if (updated.length === 0 && prev.length > 0 && !hasCompleted) {
           hasCompleted = true;
           setIsActive(false);
-          // Delay the completion callback slightly to ensure smooth transition
           setTimeout(() => {
             onComplete?.();
-          }, 100);
+          }, 200);
         }
 
         return updated;
@@ -120,13 +133,12 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
 
     animationId = requestAnimationFrame(animate);
 
-    // Cleanup function to prevent memory leaks
     return () => {
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
     };
-  }, [intensity, onComplete, isActive]);
+  }, [intensity, onComplete, isActive, iconUrls]);
 
   if (!isActive && particles.length === 0) return null;
 
@@ -147,7 +159,7 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
         </div>
       </div>
 
-      {/* Particles */}
+      {/* Basketball Icon Particles */}
       {particles.map(particle => (
         <div
           key={particle.id}
@@ -155,57 +167,45 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
           style={{
             left: `${particle.x}px`,
             top: `${particle.y}px`,
-            transform: 'translate(-50%, -50%)',
-            opacity: particle.life / particle.maxLife
+            transform: `translate(-50%, -50%) rotate(${particle.rotation}deg)`,
+            opacity: Math.max(0.3, particle.life / particle.maxLife)
           }}
         >
-          {particle.type === 'star' && (
-            <div
-              className="animate-spin"
+          <div
+            className="relative"
+            style={{
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              filter: `drop-shadow(0 0 8px ${particle.color})`,
+            }}
+          >
+            <img
+              src={particle.imageUrl}
+              alt="Basketball celebration"
+              className="w-full h-full object-contain"
               style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                background: particle.color,
-                clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
+                filter: `brightness(1.2) saturate(1.3)`,
               }}
             />
-          )}
-          {particle.type === 'heart' && (
+            {/* Glow effect behind the icon */}
             <div
+              className="absolute inset-0 rounded-full animate-pulse"
               style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                background: particle.color,
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(-45deg)'
+                background: `radial-gradient(circle, ${particle.color}40 0%, transparent 70%)`,
+                transform: 'scale(1.5)',
+                zIndex: -1
               }}
             />
-          )}
-          {particle.type === 'circle' && (
-            <div
-              className="rounded-full"
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                background: particle.color
-              }}
-            />
-          )}
-          {particle.type === 'spark' && (
-            <div
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size * 3}px`,
-                background: `linear-gradient(to bottom, ${particle.color}, transparent)`,
-                borderRadius: '50%'
-              }}
-            />
-          )}
+          </div>
         </div>
       ))}
 
-      {/* Ground sparkles */}
-      <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-yellow-400/30 via-green-400/20 to-transparent animate-pulse" />
+      {/* Enhanced ground sparkles with basketball theme */}
+      <div className="absolute bottom-0 left-0 w-full h-32">
+        <div className="absolute inset-0 bg-gradient-to-t from-orange-400/20 via-yellow-400/10 to-transparent animate-pulse" />
+        <div className="absolute inset-0 bg-gradient-to-t from-red-400/15 via-pink-400/8 to-transparent animate-pulse" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
     </div>
   );
 };
