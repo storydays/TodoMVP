@@ -4,6 +4,7 @@ interface EnhancedFireworksProps {
   intensity: 'small' | 'medium' | 'large' | 'epic';
   message: string;
   onComplete?: () => void;
+  particleImages?: string[];
 }
 
 interface Particle {
@@ -12,59 +13,81 @@ interface Particle {
   y: number;
   vx: number;
   vy: number;
-  color: string;
   size: number;
   life: number;
   maxLife: number;
-  type: 'spark' | 'star' | 'heart' | 'circle';
+  rotation: number;
+  rotationSpeed: number;
+  imageUrl: string;
 }
 
 const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
   intensity,
   message,
-  onComplete
+  onComplete,
+  particleImages = []
 }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isActive, setIsActive] = useState(true);
 
-  const colors = {
-    small: ['#FFD700', '#FFA500', '#FF6347'],
-    medium: ['#FF69B4', '#00CED1', '#32CD32', '#FFD700'],
-    large: ['#FF1493', '#00BFFF', '#ADFF2F', '#FF4500', '#DA70D6'],
-    epic: ['#FF0000', '#FF8C00', '#FFD700', '#ADFF2F', '#00CED1', '#FF69B4', '#DA70D6', '#F0E68C']
-  };
+  // Fallback images if no custom images are provided
+  const fallbackImages = [
+    '/images/fireworks/basketball.png',
+    '/images/fireworks/hoop.png',
+    '/images/fireworks/trophy.png',
+    '/images/fireworks/net.png',
+    '/images/fireworks/medal.png'
+  ];
+
+  const imagesToUse = particleImages.length > 0 ? particleImages : fallbackImages;
 
   const getParticleCount = () => {
     switch (intensity) {
-      case 'small': return 20;
-      case 'medium': return 40;
-      case 'large': return 80;
-      case 'epic': return 150;
-      default: return 20;
+      case 'small': return 15;
+      case 'medium': return 30;
+      case 'large': return 60;
+      case 'epic': return 100;
+      default: return 15;
     }
   };
 
-  const createBurst = (centerX: number, centerY: number, burstColors: string[]) => {
+  const getParticleSize = () => {
+    switch (intensity) {
+      case 'small': return { min: 20, max: 35 };
+      case 'medium': return { min: 25, max: 45 };
+      case 'large': return { min: 30, max: 55 };
+      case 'epic': return { min: 35, max: 65 };
+      default: return { min: 20, max: 35 };
+    }
+  };
+
+  const createBurst = (centerX: number, centerY: number) => {
     const particleCount = getParticleCount();
+    const sizeRange = getParticleSize();
     const newParticles: Particle[] = [];
 
     for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
-      const speed = Math.random() * 8 + 2;
-      const size = Math.random() * 4 + 2;
-      const life = Math.random() * 60 + 40;
+      const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.8;
+      const speed = Math.random() * 12 + 3;
+      const size = Math.random() * (sizeRange.max - sizeRange.min) + sizeRange.min;
+      const life = Math.random() * 80 + 60;
+      
+      // Randomly select an image from the available images
+      const randomImageIndex = Math.floor(Math.random() * imagesToUse.length);
+      const imageUrl = imagesToUse[randomImageIndex];
 
       newParticles.push({
-        id: Date.now() + i + Math.random() * 1000, // Ensure unique IDs
+        id: Date.now() + i + Math.random() * 10000,
         x: centerX,
         y: centerY,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        color: burstColors[Math.floor(Math.random() * burstColors.length)],
         size: size,
         life: life,
         maxLife: life,
-        type: ['spark', 'star', 'heart', 'circle'][Math.floor(Math.random() * 4)] as any
+        rotation: Math.random() * 360,
+        rotationSpeed: (Math.random() - 0.5) * 8,
+        imageUrl: imageUrl
       });
     }
 
@@ -72,42 +95,43 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
   };
 
   useEffect(() => {
-    const burstColors = colors[intensity];
     let animationId: number;
     let hasCompleted = false;
 
     // Create multiple bursts for different intensities
-    const burstCount = intensity === 'epic' ? 5 : intensity === 'large' ? 3 : intensity === 'medium' ? 2 : 1;
+    const burstCount = intensity === 'epic' ? 6 : intensity === 'large' ? 4 : intensity === 'medium' ? 2 : 1;
+    const burstDelay = intensity === 'epic' ? 300 : intensity === 'large' ? 400 : 500;
 
     for (let i = 0; i < burstCount; i++) {
       setTimeout(() => {
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * window.innerHeight * 0.3 + 100;
-        const burst = createBurst(x, y, burstColors);
+        const x = Math.random() * (window.innerWidth - 200) + 100;
+        const y = Math.random() * (window.innerHeight * 0.4) + 100;
+        const burst = createBurst(x, y);
         setParticles(prev => [...prev, ...burst]);
-      }, i * 500);
+      }, i * burstDelay);
     }
 
-    // Animation loop using requestAnimationFrame for better performance
+    // Animation loop
     const animate = () => {
       setParticles(prev => {
         const updated = prev.map(particle => ({
           ...particle,
           x: particle.x + particle.vx,
           y: particle.y + particle.vy,
-          vy: particle.vy + 0.1, // gravity
+          vx: particle.vx * 0.98, // air resistance
+          vy: particle.vy + 0.15, // gravity
           life: particle.life - 1,
-          size: particle.size * (particle.life / particle.maxLife)
-        })).filter(particle => particle.life > 0);
+          rotation: particle.rotation + particle.rotationSpeed,
+          size: particle.size * Math.max(0.3, particle.life / particle.maxLife) // shrink but maintain minimum size
+        })).filter(particle => particle.life > 0 && particle.y < window.innerHeight + 100);
 
         // Check if animation should complete
         if (updated.length === 0 && prev.length > 0 && !hasCompleted) {
           hasCompleted = true;
           setIsActive(false);
-          // Delay the completion callback slightly to ensure smooth transition
           setTimeout(() => {
             onComplete?.();
-          }, 100);
+          }, 200);
         }
 
         return updated;
@@ -120,92 +144,83 @@ const EnhancedFireworks: React.FC<EnhancedFireworksProps> = ({
 
     animationId = requestAnimationFrame(animate);
 
-    // Cleanup function to prevent memory leaks
     return () => {
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
     };
-  }, [intensity, onComplete, isActive]);
+  }, [intensity, onComplete, isActive, imagesToUse]);
 
   if (!isActive && particles.length === 0) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {/* Message */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      {/* Animated Background Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-500/20 to-red-500/20 animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-l from-green-400/15 via-blue-500/15 to-purple-500/15 animate-pulse" style={{ animationDelay: '0.5s' }} />
+
+      {/* Central Message */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
         <div className={`text-center animate-bounce drop-shadow-2xl ${
-          intensity === 'epic' ? 'text-6xl md:text-8xl' : ''
+          intensity === 'epic' ? 'text-5xl md:text-7xl' : ''
         } ${
-          intensity === 'large' ? 'text-5xl md:text-7xl' : ''
+          intensity === 'large' ? 'text-4xl md:text-6xl' : ''
         } ${
-          intensity === 'medium' ? 'text-4xl md:text-6xl' : ''
+          intensity === 'medium' ? 'text-3xl md:text-5xl' : ''
         } ${
-          intensity === 'small' ? 'text-3xl md:text-5xl' : ''
+          intensity === 'small' ? 'text-2xl md:text-4xl' : ''
         } font-bold text-white`}>
-          {message}
+          <div className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent animate-pulse">
+            {message}
+          </div>
         </div>
       </div>
 
-      {/* Particles */}
+      {/* Custom Image Particles */}
       {particles.map(particle => (
         <div
           key={particle.id}
-          className="absolute"
+          className="absolute transition-opacity duration-300"
           style={{
             left: `${particle.x}px`,
             top: `${particle.y}px`,
-            transform: 'translate(-50%, -50%)',
-            opacity: particle.life / particle.maxLife
+            transform: `translate(-50%, -50%) rotate(${particle.rotation}deg)`,
+            opacity: Math.max(0.3, particle.life / particle.maxLife),
+            filter: `brightness(${0.8 + (particle.life / particle.maxLife) * 0.4}) saturate(1.2)`
           }}
         >
-          {particle.type === 'star' && (
-            <div
-              className="animate-spin"
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                background: particle.color,
-                clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)'
-              }}
-            />
-          )}
-          {particle.type === 'heart' && (
-            <div
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                background: particle.color,
-                borderRadius: '50px 50px 0 0',
-                transform: 'rotate(-45deg)'
-              }}
-            />
-          )}
-          {particle.type === 'circle' && (
-            <div
-              className="rounded-full"
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size}px`,
-                background: particle.color
-              }}
-            />
-          )}
-          {particle.type === 'spark' && (
-            <div
-              style={{
-                width: `${particle.size}px`,
-                height: `${particle.size * 3}px`,
-                background: `linear-gradient(to bottom, ${particle.color}, transparent)`,
-                borderRadius: '50%'
-              }}
-            />
-          )}
+          <img
+            src={particle.imageUrl}
+            alt="firework particle"
+            className="block"
+            style={{
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))'
+            }}
+            onError={(e) => {
+              // Fallback to a simple colored circle if image fails to load
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const fallbackDiv = document.createElement('div');
+              fallbackDiv.style.width = `${particle.size}px`;
+              fallbackDiv.style.height = `${particle.size}px`;
+              fallbackDiv.style.backgroundColor = '#FFD700';
+              fallbackDiv.style.borderRadius = '50%';
+              fallbackDiv.style.filter = 'drop-shadow(0 0 8px rgba(255, 255, 255, 0.6))';
+              target.parentNode?.appendChild(fallbackDiv);
+            }}
+          />
         </div>
       ))}
 
-      {/* Ground sparkles */}
-      <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-yellow-400/30 via-green-400/20 to-transparent animate-pulse" />
+      {/* Ground Effect */}
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-yellow-400/30 via-orange-500/20 to-transparent animate-pulse" />
+      
+      {/* Side Sparkles */}
+      <div className="absolute top-0 left-0 w-20 h-full bg-gradient-to-r from-blue-400/20 to-transparent animate-pulse" />
+      <div className="absolute top-0 right-0 w-20 h-full bg-gradient-to-l from-purple-400/20 to-transparent animate-pulse" />
     </div>
   );
 };

@@ -42,12 +42,27 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
     message: string;
     taskId: string | null;
     intensity: 'small' | 'medium' | 'large' | 'epic';
+    particleImages: string[];
   }>({
     show: false,
     message: '',
     taskId: null,
-    intensity: 'medium'
+    intensity: 'medium',
+    particleImages: []
   });
+
+  // Define your custom basketball-related image paths
+  // Place these images in the public/images/fireworks/ directory
+  const basketballImages = [
+    '/images/fireworks/basketball.png',
+    '/images/fireworks/hoop.png',
+    '/images/fireworks/trophy.png',
+    '/images/fireworks/net.png',
+    '/images/fireworks/medal.png',
+    '/images/fireworks/whistle.png',
+    '/images/fireworks/jersey.png',
+    '/images/fireworks/court.png'
+  ];
 
   useEffect(() => {
     // Set a random motivational quote on component mount
@@ -77,11 +92,46 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       }
     }
 
+    // Randomly select 2 different images from the basketball images array
+    const shuffledImages = [...basketballImages].sort(() => Math.random() - 0.5);
+    const selectedImages = shuffledImages.slice(0, 2);
+
+    // Create context-based messages based on task difficulty and completion
+    const contextMessages = {
+      'small': [
+        "🏀 Nice Shot!",
+        "⭐ Great Start!",
+        "🎯 On Target!",
+        "💪 Keep Going!"
+      ],
+      'medium': [
+        "🔥 Excellent Play!",
+        "🏆 Solid Performance!",
+        "⚡ Power Move!",
+        "🎊 Well Done!"
+      ],
+      'large': [
+        "🚀 Amazing Shot!",
+        "💎 Outstanding!",
+        "🌟 Spectacular!",
+        "🎉 Incredible!"
+      ],
+      'epic': [
+        "🏆 LEGENDARY PERFORMANCE!",
+        "💥 GAME CHANGER!",
+        "🔥 ABSOLUTELY PHENOMENAL!",
+        "⭐ HALL OF FAME MOVE!"
+      ]
+    };
+
+    const contextualMessage = contextMessages[intensity][Math.floor(Math.random() * contextMessages[intensity].length)];
+
     setFireworksDisplay({
       show: true,
-      message,
+      message: contextualMessage,
       taskId,
-      intensity
+      intensity,
+      particleImages: selectedImages
     });
   };
 
@@ -93,7 +143,8 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       show: false,
       message: '',
       taskId: null,
-      intensity: 'medium'
+      intensity: 'medium',
+      particleImages: []
     });
   };
 
@@ -104,11 +155,12 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 p-4 pb-24 overflow-y-auto">
-      {/* Fireworks Animation - Rendered at top level for full screen overlay */}
+      {/* Enhanced Fireworks Animation with Custom Images */}
       {fireworksDisplay.show && (
         <EnhancedFireworks
           intensity={fireworksDisplay.intensity}
           message={fireworksDisplay.message}
+          particleImages={fireworksDisplay.particleImages}
           onComplete={handleFireworksComplete}
         />
       )}
