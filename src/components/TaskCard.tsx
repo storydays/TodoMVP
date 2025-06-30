@@ -43,13 +43,25 @@ const TaskCard: React.FC<TaskCardProps> = ({
       ];
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
       
-      // Define available celebration images
+      // Define all available celebration images
       const availableImages = [
         '/medal.png',
         '/basketball-player.png', 
         '/trophyv4.png',
         '/Glowbb.png',
-        '/icons8-basketball-64.png'
+        '/icons8-basketball-64.png',
+        '/BallandPlayer.png',
+        '/Femaleplayer.png',
+        '/Maleplayer.png',
+        '/team.png',
+        '/cup.png',
+        '/icons8-trophy-64.png',
+        '/Trophyv1.png',
+        '/trophyv2.png',
+        '/applogo.png',
+        '/ballbasket.png',
+        '/icons8-basketball-64 copy.png',
+        '/icons8-basketball-100.png'
       ];
       
       // Randomly select two distinct images
