@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, BarChart3, Calendar, Settings } from 'lucide-react';
+import { Home, BarChart3, Calendar, Brain } from 'lucide-react';
 
 interface NavigationProps {
   currentPage: string;
@@ -11,11 +11,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage, onPageChange }) =>
     { id: 'home', icon: Home, label: 'The Court' },
     { id: 'stats', icon: BarChart3, label: 'Stats' },
     { id: 'calendar', icon: Calendar, label: 'Schedule' },
-    { id: 'settings', icon: Settings, label: 'Settings' },
+    { id: 'settings', icon: Brain, label: 'AI Coach' },
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-xl border-t border-white/20 px-4 py-2">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/10 backdrop-blur-xl border-t border-white/20 px-4 py-2 z-50">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;

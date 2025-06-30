@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Check, Star, Trash2, Clock, Calendar } from 'lucide-react';
+import { Check, Star, Trash2, Clock, Calendar, X } from 'lucide-react';
 import { Task } from '../types';
+import { playTaskCompletionCommentary, playFireworkSound } from '../utils/audio';
 
 interface TaskCardProps {
   task: Task;
@@ -11,12 +12,24 @@ interface TaskCardProps {
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onTogglePriority }) => {
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
 
   const handleComplete = () => {
     setIsCompleting(true);
+    
+    // Show fireworks animation
+    setShowFireworks(true);
+    
+    // Play firework sound effect
+    playFireworkSound();
+    
+    // Play voice commentary
+    playTaskCompletionCommentary(task.title, task.difficulty, task.points);
+    
     setTimeout(() => {
       onComplete(task.id);
-    }, 500);
+      setShowFireworks(false);
+    }, 1500);
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -54,9 +67,30 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onComplete, onDelete, onToggl
   };
 
   return (
-    <div className={`bg-white/15 backdrop-blur-lg rounded-2xl p-4 border border-white/20 transform transition-all duration-300 ${
+    <div className={`relative bg-white/15 backdrop-blur-lg rounded-2xl p-4 border border-white/20 transform transition-all duration-300 ${
       isCompleting ? 'scale-95 opacity-50' : 'hover:scale-105'
     } ${task.completed ? 'opacity-60' : ''} ${isOverdue() ? 'border-red-400/50' : ''}`}>
+      
+      {/* Fireworks Animation */}
+      {showFireworks && (
+        <div className="absolute inset-0 pointer-events-none z-10 rounded-2xl overflow-hidden">
+          {/* Particle effects using Tailwind animations */}
+          <div className="absolute top-2 left-2 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
+          <div className="absolute top-4 right-4 w-3 h-3 bg-red-400 rounded-full animate-bounce"></div>
+          <div className="absolute bottom-4 left-6 w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+          <div className="absolute bottom-2 right-2 w-2 h-2 bg-green-400 rounded-full animate-ping"></div>
+          <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-purple-400 rounded-full animate-bounce transform -translate-x-1/2 -translate-y-1/2"></div>
+          
+          {/* Sparkle effects */}
+          <div className="absolute top-3 left-1/3 w-1 h-1 bg-yellow-300 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
+          <div className="absolute top-6 right-1/3 w-1 h-1 bg-pink-300 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div className="absolute bottom-6 left-1/4 w-1 h-1 bg-cyan-300 rounded-full animate-bounce" style={{ animationDelay: '0.6s' }}></div>
+          <div className="absolute bottom-3 right-1/4 w-1 h-1 bg-orange-300 rounded-full animate-ping" style={{ animationDelay: '0.8s' }}></div>
+          
+          {/* Burst effect overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-red-400/20 to-blue-400/20 animate-pulse rounded-2xl"></div>
+        </div>
+      )}
       
       {/* Task Header */}
       <div className="flex items-start justify-between mb-3">
