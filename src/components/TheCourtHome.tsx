@@ -42,12 +42,23 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
     message: string;
     taskId: string | null;
     intensity: 'small' | 'medium' | 'large' | 'epic';
+    particleImages: string[];
   }>({
     show: false,
     message: '',
     taskId: null,
-    intensity: 'medium'
+    intensity: 'medium',
+    particleImages: []
   });
+
+  // Basketball-themed firework images
+  const basketballFireworkImages = [
+    '/medal.png',
+    '/basketball-player.png',
+    '/trophyv4.png',
+    '/Glowbb.png',
+    '/icons8-basketball-64.png'
+  ];
 
   useEffect(() => {
     // Set a random motivational quote on component mount
@@ -77,11 +88,16 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       }
     }
 
+    // Randomly select two distinct images from the basketball firework images
+    const shuffled = [...basketballFireworkImages].sort(() => 0.5 - Math.random());
+    const selectedImages = shuffled.slice(0, 2);
+
     setFireworksDisplay({
       show: true,
       message,
       taskId,
-      intensity
+      intensity,
+      particleImages: selectedImages
     });
   };
 
@@ -93,7 +109,8 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
       show: false,
       message: '',
       taskId: null,
-      intensity: 'medium'
+      intensity: 'medium',
+      particleImages: []
     });
   };
 
@@ -109,6 +126,7 @@ const TheCourtHome: React.FC<TheCourtHomeProps> = ({
         <EnhancedFireworks
           intensity={fireworksDisplay.intensity}
           message={fireworksDisplay.message}
+          particleImages={fireworksDisplay.particleImages}
           onComplete={handleFireworksComplete}
         />
       )}
