@@ -42,7 +42,10 @@ const TaskCard: React.FC<TaskCardProps> = ({
       onTriggerFireworks(task.id, randomMessage);
     } else {
       // Fallback if no fireworks callback provided
-      onComplete(task.id);
+      setTimeout(() => {
+        onComplete(task.id);
+        setIsCompleting(false);
+      }, 1000);
     }
   };
 
